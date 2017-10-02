@@ -33,6 +33,21 @@ class employee_info_stamdata3
 		}
 		return $result[0];
 	}
+
+	//Find an employee by SocialSecurityNumber
+	//Accepts: ResourceId string
+	//Returns: Resource object
+	function find_employee_SSN($SocialSecurityNumber)
+	{
+		$xpath=sprintf('//Resources/Resource/SocialSecurityNumber[.="%s"]/parent::Resource',$SocialSecurityNumber);
+		$result=$this->xml->xpath($xpath);
+		if(empty($result))
+		{
+			$this->error=sprintf('Social Security Number %s not found',$SocialSecurityNumber);
+			return false;
+		}
+		return $result[0];
+	}
 	//Find an employee by name
 	//Accepts: First name and last name string
 	//Returns: Resource object
