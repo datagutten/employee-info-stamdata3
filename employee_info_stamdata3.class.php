@@ -151,10 +151,11 @@ class employee_info_stamdata3
 		$manager=$this->organisation_info($organizational_unit)->Managers[0]->string;
 		return $this->find_employee($manager);
 	}
+
 	//Get all employees in one of the following relations: COST_CENTER, WORKPLACE or ORGANIZATIONAL_UNIT
-	function get_employees($value)
+	function get_employees($value,$type='ORGANIZATIONAL_UNIT')
 	{
-		$type='ORGANIZATIONAL_UNIT';	$xpath=sprintf('//Resources/Resource/Employments/Employment/Relations/Relation[@ElementType="%s"]/Value[.="%s"]/parent::Relation/parent::Relations/parent::Employment/parent::Employments/parent::Resource',$type,$value);
+		$xpath=sprintf('//Resources/Resource/Employments/Employment/Relations/Relation[@ElementType="%s"]/Value[.="%s"]/parent::Relation/parent::Relations/parent::Employment/parent::Employments/parent::Resource',$type,$value);
 		return $this->xml->xpath($xpath);
 	}
 	//Accepts: ResourceId string or Resource object
