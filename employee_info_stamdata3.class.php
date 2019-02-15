@@ -5,9 +5,11 @@ class employee_info_stamdata3
 	public $xml=false;
 	public $error;
 	public $debug=false;
-	function __construct()
+	function __construct($file=null)
 	{
-		$this->xml=simplexml_load_file(__DIR__.'/Stamdata3.xml');
+	    if(empty($file))
+	        $file = __DIR__.'/Stamdata3.xml';
+		$this->xml=simplexml_load_file($file);
 		if($this->xml===false)
 			throw new exeption('Unable to load file');
 	}
