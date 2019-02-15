@@ -117,7 +117,7 @@ class employee_info_stamdata3
 		$OrganizationalUnit=$MainPosition->Relations->xpath('Relation[@ElementType="ORGANIZATIONAL_UNIT"]');
 		if(empty($OrganizationalUnit))
 		{
-			$this->error=sprintf('Main position for %s has no organizational unit',$ResourceId);
+			$this->error=sprintf('Main position for %s has no releation of type organizational unit',$ResourceId);
 			return false;
 		}
 		return $OrganizationalUnit[0];		
@@ -150,6 +150,8 @@ class employee_info_stamdata3
 			throw new Exception('Invalid argument');*/
 
 		$organizational_unit=$this->organizational_unit($ResourceId);
+		if($organizational_unit===false)
+			return false;
 		$manager=$this->organisation_info($organizational_unit)->Managers[0]->string;
 		return $this->find_employee($manager);
 	}
@@ -212,7 +214,7 @@ class employee_info_stamdata3
 		else
 			throw new Exception('Argument must be object or string, provided type is '.gettype($Resource_or_Relations));
 
-		print_r($relations);
+		//print_r($relations);
 		$output='';
 		foreach($relations->Relations->Relation as $relation)
 		{
