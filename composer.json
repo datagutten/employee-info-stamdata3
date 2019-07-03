@@ -1,0 +1,18 @@
+{
+    "name": "askommune/employee-info-stamdata3",
+    "description": "A PHP class to work with information about employees from a file exported from agresso business world in the format \"stamdata3\"",
+    "type": "library",
+    "require": {
+        "ext-SimpleXML": "*"
+    },
+    "license": "GPL-3.0-or-later",
+    "authors": [
+        {
+            "name": "datagutten",
+            "email": "datagutten@datagutten.net"
+        }
+    ],
+    "autoload": {
+        "classmap": ["employee_info_stamdata3.class.php"]
+    }
+}
