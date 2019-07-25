@@ -15,7 +15,7 @@
     "autoload": {
         "classmap": ["employee_info_stamdata3.class.php"],
         "psr-4": {
-            "askommune\\EmployeeInfo": "src"
+            "askommune\\EmployeeInfo\\": "src"
         }
     }
 }
