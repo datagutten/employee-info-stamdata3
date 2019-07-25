@@ -11,14 +11,20 @@ class employee_info_stamdata3
 	        $file = __DIR__.'/Stamdata3.xml';
 		$this->xml=simplexml_load_file($file);
 		if($this->xml===false)
-			throw new exeption('Unable to load file');
+			throw new Exception('Unable to load file');
 	}
-	//Perform a root level xpath query
+
+    /**
+     * Perform a root level xpath query
+     * @param $xpath
+     * @return SimpleXMLElement
+     * @throws \askommune\EmployeeInfo\NoHitsException
+     */
 	function query($xpath)
 	{
 		$result=$this->xml->xpath($xpath);
 		if(empty($result))
-			return false;
+			throw new \askommune\EmployeeInfo\NoHitsException($xpath);
 		return $result[0];
 	}
 	//Find an employee by ResourceId
@@ -104,9 +110,14 @@ class employee_info_stamdata3
 		}
 		return $MainPosition[0];
 	}
-	/*Get the organization tree for an employee
-	Accepts: ResourceId string
-	Returns:*/
+
+    /**
+     * Get the organization tree for an employee
+     *
+     * @param string $ResourceId Resource ID
+     * @return SimpleXMLElement
+     * @throws Exception
+     */
 	function organizational_unit($ResourceId)
 	{
 		if(!is_string($ResourceId))
@@ -122,18 +133,25 @@ class employee_info_stamdata3
 		}
 		return $OrganizationalUnit[0];		
 	}
+
+    /**
+     * @param SimpleXMLElement $Organisation
+     * @return SimpleXMLElement
+     * @throws Exception
+     */
 	function organisation_info($Organisation)
 	{
 		if(empty($Organisation))
-			throw new Exception('organisation_info was called with empty argument');
+			throw new InvalidArgumentException('organisation_info was called with empty argument');
 		if(is_object($Organisation) && $Organisation->getName()=='Relation')
 			$Organisation=$Organisation->Value;
 		$xpath=sprintf('//Organisations/Organisation/Id[.="%s"]/parent::Organisation',$Organisation);
-		$result=$this->query($xpath);
-		if($result==false)
+		try {
+            $result = $this->query($xpath);
+        }
+        catch (\askommune\EmployeeInfo\NoHitsException $e)
 		{
-			$this->error=sprintf('Could not find organisation "%s"',$Organisation);
-			return false;
+			throw new Exception(sprintf('Could not find organisation "%s"',$Organisation), 0, $e);
 		}
 		return $result;
 	}
