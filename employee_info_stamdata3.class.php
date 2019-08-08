@@ -92,7 +92,7 @@ class employee_info_stamdata3
 	*/
 	function relation_value($Relation,$relation_name)
 	{
-		$this->verify_object_type($Relation,'Relations');
+		$this->check_xml_tag($Relation,'Relations');
 		$xpath=sprintf('.//Relation[@Name="%s"]/Value',$relation_name);
 		return (string)$Relation->xpath($xpath)[0];
 	}
@@ -298,8 +298,15 @@ class employee_info_stamdata3
 			echo "\n";
 		}
 	}
-	//Verify that the
-	function verify_object_type($object,$type)
+
+    /**
+     * Check if the supplied SimpleXMLElement instance matches the supplied tag name
+     * @param SimpleXMLElement $object
+     * @param $type string XML tag name
+     * @return bool
+     * @throws Exception
+     */
+    function check_xml_tag($object, $type)
 	{
 		if(is_object($object))
 		{
