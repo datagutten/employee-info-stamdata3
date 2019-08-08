@@ -196,7 +196,7 @@ class employee_info_stamdata3
 	}
 
     /**
-     * @param string|SimpleXMLElement $Resource
+     * @param string|SimpleXMLElement $Resource Resource ID, Resource XML or Organisation XML
      * @param bool $debug Show debug output
      * @return array
      * @throws exceptions\DataException
@@ -208,16 +208,22 @@ class employee_info_stamdata3
 		if(is_string($Resource) && strlen($Resource)==5)
 			$Resource=$this->organizational_unit($Resource);
 
-		$Organisation_levels=array();
-		$Organisation=$this->organisation_info($Resource);
+        if($this->check_xml_tag($Resource, 'Organisation')===true)
+            $Organisation=$Resource;
+        else
+        {
+            $Organisation_levels=array();
+            $Organisation=$this->organisation_info($Resource);
+        }
+
 		while(!empty($Organisation->ParentId))
 		{
 			$Organisation_levels[]=$Organisation;
-			//echo sprintf("Parent for %s is %s\n",$Organisation->Name,$Organisation->ParentId);
+			if($debug)
+			    echo sprintf("Parent for %s is %s\n",$Organisation->Name,$Organisation->ParentId);
 			$Organisation=$this->organisation_info($Organisation->ParentId);
 		}
-		if($Organisation===false)
-			return false;
+
 		$Organisation_levels[]=$Organisation;
 		return $Organisation_levels;
 	}
