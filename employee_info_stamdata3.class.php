@@ -34,18 +34,16 @@ class employee_info_stamdata3
      *
      * @param string $ResourceId
      * @return SimpleXMLElement Resource
-     * @throws EmployeeNotFoundException
+     * @throws exceptions\EmployeeNotFoundException
      */
     function find_employee($ResourceId)
 	{
 		$xpath=sprintf('//Resources/Resource/ResourceId[.="%s"]/parent::Resource',$ResourceId);
 		$result=$this->xml->xpath($xpath);
-		if(empty($result))
-		{
-			$this->error=sprintf('Employee %s not found',$ResourceId);
-			return false;
-		}
-		return $result[0];
+        if(empty($result))
+            throw new exceptions\EmployeeNotFoundException(
+                sprintf('Employee %s not found',$ResourceId));
+        return $result[0];
 	}
 
 	//Find an employee by SocialSecurityNumber
@@ -71,8 +69,7 @@ class employee_info_stamdata3
 		$result=$this->xml->xpath($xpath);
 		if(empty($result))
 		{
-			$this->error=sprintf('Could not find any employees named "%s, %s"',$Surname,$FirstName);
-			return false;
+			throw new exceptions\DataException(sprintf('Could not find any employees named "%s, %s"',$Surname,$FirstName));
 		}
 		return $result[0];
 	}
@@ -110,8 +107,7 @@ class employee_info_stamdata3
 			$ResourceId=$this->ResourceId($ResourceId);
 		$xpath='.//Employment/MainPosition[.="true"]/parent::Employment';///Relations
 		$employee=$this->find_employee($ResourceId);
-		if($employee===false)
-			return false;
+
 		$MainPosition=$employee->xpath($xpath);
 		if(empty($MainPosition))
 		{
@@ -178,8 +174,6 @@ class employee_info_stamdata3
 			throw new Exception('Invalid argument');*/
 
 		$organizational_unit=$this->organizational_unit($ResourceId);
-		if($organizational_unit===false)
-			return false;
 		$manager=$this->organisation_info($organizational_unit)->Managers[0]->string;
 		return $this->find_employee($manager);
 	}
@@ -203,8 +197,6 @@ class employee_info_stamdata3
 	{
 		if(is_string($Resource) && strlen($Resource)==5)
 			$Resource=$this->organizational_unit($Resource);
-		if($Resource===false)
-			return false;
 
 		$Organisation_levels=array();
 		$Organisation=$this->organisation_info($Resource);
