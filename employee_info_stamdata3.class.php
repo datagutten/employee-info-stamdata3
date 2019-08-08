@@ -132,21 +132,17 @@ class employee_info_stamdata3
      *
      * @param string $ResourceId Resource ID
      * @return SimpleXMLElement
-     * @throws Exception
+     * @throws exceptions\DataException
+     * @throws exceptions\EmployeeNotFoundException
      */
 	function organizational_unit($ResourceId)
 	{
 		if(!is_string($ResourceId))
 			throw new Exception('Argument must be string, provided type is '.gettype($ResourceId));
 		$MainPosition=$this->Main_Position($ResourceId);
-		if($MainPosition===false)
-			return false;
 		$OrganizationalUnit=$MainPosition->Relations->xpath('Relation[@ElementType="ORGANIZATIONAL_UNIT"]');
 		if(empty($OrganizationalUnit))
-		{
-			$this->error=sprintf('Main position for %s has no releation of type organizational unit',$ResourceId);
-			return false;
-		}
+            throw new exceptions\DataException(sprintf('Main position for %s has no relation of type organizational unit',$ResourceId));
 		return $OrganizationalUnit[0];		
 	}
 
