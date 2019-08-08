@@ -1,5 +1,7 @@
 <?Php
 //A class to extract information about employees from a file exported from agresso business world in the format "stamdata3"
+use askommune\EmployeeInfo\exceptions;
+
 class employee_info_stamdata3
 {
 	public $xml=false;
@@ -18,13 +20,13 @@ class employee_info_stamdata3
      * Perform a root level xpath query
      * @param $xpath
      * @return SimpleXMLElement
-     * @throws \askommune\EmployeeInfo\NoHitsException
+     * @throws exceptions\NoHitsException
      */
 	function query($xpath)
 	{
 		$result=$this->xml->xpath($xpath);
 		if(empty($result))
-			throw new \askommune\EmployeeInfo\NoHitsException($xpath);
+			throw new exceptions\NoHitsException($xpath);
 		return $result[0];
 	}
     /**
@@ -145,7 +147,7 @@ class employee_info_stamdata3
     /**
      * @param SimpleXMLElement $Organisation
      * @return SimpleXMLElement
-     * @throws Exception
+     * @throws exceptions\NoHitsException
      */
 	function organisation_info($Organisation)
 	{
@@ -157,9 +159,9 @@ class employee_info_stamdata3
 		try {
             $result = $this->query($xpath);
         }
-        catch (\askommune\EmployeeInfo\NoHitsException $e)
+        catch (exceptions\NoHitsException $e)
 		{
-			throw new Exception(sprintf('Could not find organisation "%s"',$Organisation), 0, $e);
+			throw new exceptions\NoHitsException(sprintf('Could not find organisation "%s"',$Organisation), 0, $e);
 		}
 		return $result;
 	}
@@ -188,8 +190,16 @@ class employee_info_stamdata3
 		$xpath=sprintf('//Resources/Resource/Employments/Employment/Relations/Relation[@ElementType="%s"]/Value[.="%s"]/parent::Relation/parent::Relations/parent::Employment/parent::Employments/parent::Resource',$type,$value);
 		return $this->xml->xpath($xpath);
 	}
-	//Accepts: ResourceId string or Resource object
-	function organisation_tree($Resource)
+
+    /**
+     * @param string|SimpleXMLElement $Resource
+     * @param bool $debug Show debug output
+     * @return array
+     * @throws exceptions\DataException
+     * @throws exceptions\EmployeeNotFoundException
+     * @throws exceptions\NoHitsException
+     */
+    function organisation_tree($Resource, $debug=false)
 	{
 		if(is_string($Resource) && strlen($Resource)==5)
 			$Resource=$this->organizational_unit($Resource);
@@ -209,7 +219,15 @@ class employee_info_stamdata3
 		$Organisation_levels[]=$Organisation;
 		return $Organisation_levels;
 	}
-	function organisation_path($EmployeeId)
+
+    /**
+     * @param $EmployeeId
+     * @return string
+     * @throws exceptions\DataException
+     * @throws exceptions\EmployeeNotFoundException
+     * @throws exceptions\NoHitsException
+     */
+    function organisation_path($EmployeeId)
 	{
 		$organisation_tree=$this->organisation_tree($EmployeeId);
 		if($organisation_tree===false)
@@ -228,8 +246,8 @@ class employee_info_stamdata3
      *
      * @param string|SimpleXMLElement $Resource_or_Relations
      * @return string
-     * @throws DataException
-     * @throws EmployeeNotFoundException
+     * @throws exceptions\DataException
+     * @throws exceptions\EmployeeNotFoundException
      * @throws Exception
      */
     function show_relations($Resource_or_Relations)
@@ -255,7 +273,14 @@ class employee_info_stamdata3
 		}
 		return $output;
 	}
-	function show_all_relations($org)
+
+    /**
+     * Show all relations
+     * @param $org
+     * @throws exceptions\DataException
+     * @throws exceptions\EmployeeNotFoundException
+     */
+    function show_all_relations($org)
 	{
 		foreach($this->get_employees($org) as $employee)
 		{
