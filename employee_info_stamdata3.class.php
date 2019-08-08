@@ -98,8 +98,8 @@ class employee_info_stamdata3
      * Find an employees main position
 	 * @param string $ResourceId string or Resource object
 	 * @return SimpleXMLElement Employment object
-     * @throws DataException
-     * @throws EmployeeNotFoundException
+     * @throws exceptions\DataException
+     * @throws exceptions\EmployeeNotFoundException
      */
 	function Main_Position($ResourceId)
 	{
@@ -110,11 +110,21 @@ class employee_info_stamdata3
 
 		$MainPosition=$employee->xpath($xpath);
 		if(empty($MainPosition))
-		{
-			$this->error=sprintf('%s has no main position',$ResourceId);
-			return false;
-		}
-		return $MainPosition[0];
+			throw new exceptions\DataException(sprintf('%s has no main position',$ResourceId));
+		if(count($MainPosition)>1)
+        {
+            foreach($MainPosition as $Employment)
+            {
+                $to = strtotime($Employment->{'DateTo'});
+                $from = strtotime($Employment->{'DateFrom'});
+                $time = time();
+                if($from<=$time && $to>=$time)
+                    return $Employment;
+            }
+            throw new exceptions\DataException(sprintf('%s has multiple main positions, but none is valid',$ResourceId));
+        }
+        else
+		    return $MainPosition[0];
 	}
 
     /**
