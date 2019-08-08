@@ -27,10 +27,14 @@ class employee_info_stamdata3
 			throw new \askommune\EmployeeInfo\NoHitsException($xpath);
 		return $result[0];
 	}
-	//Find an employee by ResourceId
-	//Accepts: ResourceId string
-	//Returns: Resource object
-	function find_employee($ResourceId)
+    /**
+     * Find an employee by ResourceId
+     *
+     * @param string $ResourceId
+     * @return SimpleXMLElement Resource
+     * @throws EmployeeNotFoundException
+     */
+    function find_employee($ResourceId)
 	{
 		$xpath=sprintf('//Resources/Resource/ResourceId[.="%s"]/parent::Resource',$ResourceId);
 		$result=$this->xml->xpath($xpath);
@@ -91,9 +95,13 @@ class employee_info_stamdata3
 		return (string)$Relation->xpath($xpath)[0];
 	}
 
-	/*Find an employees main position
-	Accepts: ResourceId string or Resource object
-	Returns: Employment object*/
+	/**
+     * Find an employees main position
+	 * @param string $ResourceId string or Resource object
+	 * @return SimpleXMLElement Employment object
+     * @throws DataException
+     * @throws EmployeeNotFoundException
+     */
 	function Main_Position($ResourceId)
 	{
 		if(is_object($ResourceId))
@@ -214,10 +222,17 @@ class employee_info_stamdata3
 		$orgstring=substr($orgstring,0,-1);
 		return $orgstring;
 	}
-	//Display relations nicely formatted
-	//Accepts: ResourceId string or Resource object
-	//Returns: String with relations
-	function show_relations($Resource_or_Relations)
+
+    /**
+     * Display relations nicely formatted
+     *
+     * @param string|SimpleXMLElement $Resource_or_Relations
+     * @return string
+     * @throws DataException
+     * @throws EmployeeNotFoundException
+     * @throws Exception
+     */
+    function show_relations($Resource_or_Relations)
 	{
 		//ResourceId string
 		if(is_string($Resource_or_Relations) && strlen($Resource_or_Relations)==5)
