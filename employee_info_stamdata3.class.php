@@ -321,9 +321,9 @@ class employee_info_stamdata3
 			if($object->getName()==$type)
 				return true;
 			else
-				throw new Exception('Invalid object type: '.$object->getName());
+				throw new InvalidArgumentException('Invalid object type: '.$object->getName());
 		}
 		else
-			throw new Exception(sprintf('Argument must be a %s object, provided type is %s',$type,gettype($object)));
+			throw new InvalidArgumentException(sprintf('Argument must be a %s object, provided type is %s',$type,gettype($object)));
 	}
 }
