@@ -128,7 +128,7 @@ class employee_info_stamdata3
 	}
 
     /**
-     * Get the organization tree for an employee
+     * Get the organizational unit for an employee
      *
      * @param string $ResourceId Resource ID
      * @return SimpleXMLElement
@@ -192,6 +192,7 @@ class employee_info_stamdata3
 	}
 
     /**
+     * Get the organization tree for an employee
      * @param string|SimpleXMLElement $Resource Resource ID, Resource XML or Organisation XML
      * @param bool $debug Show debug output
      * @return array
@@ -201,10 +202,12 @@ class employee_info_stamdata3
      */
     function organisation_tree($Resource, $debug=false)
 	{
-		if(is_string($Resource) && strlen($Resource)==5)
-			$Resource=$this->organizational_unit($Resource);
+		if(is_string($Resource) && strlen($Resource)==5) {
 
-        if($this->check_xml_tag($Resource, 'Organisation')===true)
+            $Relation = $this->organizational_unit($Resource);
+            $Organisation = $this->organisation_info($Relation->{'Value'});
+        }
+        elseif($this->check_xml_tag($Resource, 'Organisation')===true)
             $Organisation=$Resource;
         else
         {
@@ -234,8 +237,6 @@ class employee_info_stamdata3
     function organisation_path($EmployeeId)
 	{
 		$organisation_tree=$this->organisation_tree($EmployeeId);
-		if($organisation_tree===false)
-			return false;
 		$orgstring='';
 		foreach(array_reverse($organisation_tree) as $organisation)
 		{
