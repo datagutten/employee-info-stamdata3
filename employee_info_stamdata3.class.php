@@ -157,7 +157,7 @@ class employee_info_stamdata3
 		if(!is_string($ResourceId))
 			throw new InvalidArgumentException('Argument must be string, provided type is '.gettype($ResourceId));
 		$MainPosition=$this->Main_Position($ResourceId);
-		$OrganizationalUnit=$MainPosition->Relations->xpath('Relation[@ElementType="ORGANIZATIONAL_UNIT"]');
+		$OrganizationalUnit=$MainPosition->{'Relations'}->xpath('Relation[@ElementType="ORGANIZATIONAL_UNIT"]');
 		if(empty($OrganizationalUnit))
             throw new exceptions\DataException(sprintf('Main position for %s has no relation of type organizational unit',$ResourceId));
 		return $OrganizationalUnit[0];		
@@ -174,7 +174,7 @@ class employee_info_stamdata3
 		if(empty($Organisation))
 			throw new InvalidArgumentException('organisation_info was called with empty argument');
 		if(is_object($Organisation) && $Organisation->getName()=='Relation')
-			$Organisation=$Organisation->Value;
+			$Organisation=$Organisation->{'Value'};
 		$xpath=sprintf('//Organisations/Organisation/Id[.="%s"]/parent::Organisation',$Organisation);
 		try {
             $result = $this->query($xpath);
@@ -197,7 +197,7 @@ class employee_info_stamdata3
 	function manager($ResourceId)
 	{
 		$organizational_unit=$this->organizational_unit($ResourceId);
-		$manager=$this->organisation_info($organizational_unit)->Managers[0]->string;
+		$manager=$this->organisation_info($organizational_unit)->{'Managers'}[0]->string;
 		return $this->find_employee($manager);
 	}
 
@@ -241,7 +241,7 @@ class employee_info_stamdata3
 		{
 			$Organisation_levels[]=$Organisation;
 			if($debug)
-			    echo sprintf("Parent for %s is %s\n",$Organisation->Name,$Organisation->ParentId);
+			    echo sprintf("Parent for %s is %s\n",$Organisation->{'Name'},$Organisation->{'ParentId'});
 			$Organisation=$this->organisation_info($Organisation->ParentId);
 		}
 
@@ -294,9 +294,13 @@ class employee_info_stamdata3
 
 		//print_r($relations);
 		$output='';
-		foreach($relations->Relations->Relation as $relation)
+		foreach($relations->{'Relations'}->{'Relation'} as $relation)
 		{
-			$output.=sprintf("Name: %-20s\tValue:\t%-6s Description: %s\n",$relation->attributes()['Name'],$relation->Value,$relation->Description);
+			$output.=sprintf("Name: %-20s\tValue:\t%-6s Description: %s\n",
+                $relation->attributes()['Name'],
+                $relation->{'Value'},
+                $relation->{'Description'}
+                );
 		}
 		return $output;
 	}
@@ -313,8 +317,8 @@ class employee_info_stamdata3
 		{
 			//print_r($employee->Employments);
 			//print_r($employee);
-			echo sprintf("%s: %s\n",$employee->ResourceId,$employee->Name);
-			$type='';	$xpath=sprintf('.//Employments/Employment/Relations/Relation[@ElementType="ORGANIZATIONAL_UNIT"]/Value[.="%s"]/parent::Relation/parent::Relations',$org);
+			echo sprintf("%s: %s\n",$employee->{'ResourceId'},$employee->{'Name'});
+			$xpath=sprintf('.//Employments/Employment/Relations/Relation[@ElementType="ORGANIZATIONAL_UNIT"]/Value[.="%s"]/parent::Relation/parent::Relations',$org);
 			echo $this->show_relations($employee->xpath($xpath)[0]);
 			/*foreach($employee->xpath($xpath)[0] as $relation)
 			{
