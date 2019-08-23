@@ -7,6 +7,12 @@ class employee_info_stamdata3
 	public $xml=false;
 	public $error;
 	public $debug=false;
+
+    /**
+     * employee_info_stamdata3 constructor.
+     * @param null $file
+     * @throws Exception
+     */
 	function __construct($file=null)
 	{
 	    if(empty($file))
@@ -46,47 +52,58 @@ class employee_info_stamdata3
         return $result[0];
 	}
 
-	//Find an employee by SocialSecurityNumber
-	//Accepts: ResourceId string
-	//Returns: Resource object
+    /**
+     * Find an employee by SocialSecurityNumber
+     * @param string $SocialSecurityNumber Social security number
+     * @return SimpleXMLElement
+     * @throws exceptions\NoHitsException
+     */
 	function find_employee_SSN($SocialSecurityNumber)
 	{
 		$xpath=sprintf('//Resources/Resource/SocialSecurityNumber[.="%s"]/parent::Resource',$SocialSecurityNumber);
 		$result=$this->xml->xpath($xpath);
 		if(empty($result))
 		{
-			$this->error=sprintf('Social Security Number %s not found',$SocialSecurityNumber);
-			return false;
+			throw new exceptions\NoHitsException('Social Security Number %s not found',$SocialSecurityNumber);
 		}
 		return $result[0];
 	}
-	//Find an employee by name
-	//Accepts: First name and last name string
-	//Returns: Resource object
+
+    /**
+     * Find an employee by name
+     * @param string $FirstName First name
+     * @param string $Surname Last name
+     * @return SimpleXMLElement
+     * @throws exceptions\NoHitsException
+     */
 	function find_employee_name($FirstName,$Surname)
 	{
 		$xpath=sprintf('//Resources/Resource/Name[.="%s, %s"]/parent::Resource',$Surname,$FirstName);
 		$result=$this->xml->xpath($xpath);
 		if(empty($result))
 		{
-			throw new exceptions\DataException(sprintf('Could not find any employees named "%s, %s"',$Surname,$FirstName));
+			throw new exceptions\NoHitsException(sprintf('Could not find any employees named "%s, %s"',$Surname,$FirstName));
 		}
 		return $result[0];
 	}
-	//Get ResourceId from a Resource object
-	//Accepts: Resource object
-	//Returns: ResourceId string
+
+    /**
+     * Get ResourceId from a Resource object
+     * @param SimpleXMLElement $Resource Resource
+     * @return string ResourceId
+     */
 	function ResourceId($Resource)
 	{
-		if(!is_object($Resource) || $Resource->getName()!='Resource')
-			throw new Exception('Wrong object type or not an object');
-		return (string)$Resource->ResourceId;
+	    $this->check_xml_tag($Resource, 'Resource');
+		return (string)$Resource->{'ResourceId'};
 	}
-	/*
-	Get a relation from an Employment object
-	Accepts: Employment Object
-	Returns: Relation value string
-	*/
+
+    /**
+     * Get a relation from an Employment XML object
+     * @param SimpleXMLElement $Relation
+     * @param string $relation_name
+     * @return string Relation value string
+     */
 	function relation_value($Relation,$relation_name)
 	{
 		$this->check_xml_tag($Relation,'Relations');
@@ -96,7 +113,7 @@ class employee_info_stamdata3
 
 	/**
      * Find an employees main position
-	 * @param string $ResourceId string or Resource object
+	 * @param string|SimpleXMLElement $ResourceId string or Resource object
 	 * @return SimpleXMLElement Employment object
      * @throws exceptions\DataException
      * @throws exceptions\EmployeeNotFoundException
@@ -138,7 +155,7 @@ class employee_info_stamdata3
 	function organizational_unit($ResourceId)
 	{
 		if(!is_string($ResourceId))
-			throw new Exception('Argument must be string, provided type is '.gettype($ResourceId));
+			throw new InvalidArgumentException('Argument must be string, provided type is '.gettype($ResourceId));
 		$MainPosition=$this->Main_Position($ResourceId);
 		$OrganizationalUnit=$MainPosition->Relations->xpath('Relation[@ElementType="ORGANIZATIONAL_UNIT"]');
 		if(empty($OrganizationalUnit))
@@ -147,7 +164,8 @@ class employee_info_stamdata3
 	}
 
     /**
-     * @param SimpleXMLElement $Organisation
+     * Get information about an Organisation
+     * @param string|SimpleXMLElement $Organisation Organisation id or Relation object
      * @return SimpleXMLElement
      * @throws exceptions\NoHitsException
      */
@@ -167,24 +185,28 @@ class employee_info_stamdata3
 		}
 		return $result;
 	}
-	//Get the manager for an employee
-	//Accepts: ResourceId string
-	//Returns: Resource object
+
+    /**
+     * Get the manager for an employee
+     * @param string $ResourceId ResourceId
+     * @return SimpleXMLElement Resource
+     * @throws exceptions\DataException
+     * @throws exceptions\EmployeeNotFoundException
+     * @throws exceptions\NoHitsException
+     */
 	function manager($ResourceId)
 	{
-		/*if(is_string($ResourceId))
-			$Resource=$this->find_employee($ResourceId);
-		elseif(is_object($Resource) && $Resource->getName()=='Resource')
-			$employee=$Resource;
-		else
-			throw new Exception('Invalid argument');*/
-
 		$organizational_unit=$this->organizational_unit($ResourceId);
 		$manager=$this->organisation_info($organizational_unit)->Managers[0]->string;
 		return $this->find_employee($manager);
 	}
 
-	//Get all employees in one of the following relations: COST_CENTER, WORKPLACE or ORGANIZATIONAL_UNIT
+    /**
+     * Get all employees in one of the following relations: COST_CENTER, WORKPLACE or ORGANIZATIONAL_UNIT
+     * @param string $value
+     * @param string $type
+     * @return SimpleXMLElement[]
+     */
 	function get_employees($value,$type='ORGANIZATIONAL_UNIT')
 	{
 		$xpath=sprintf('//Resources/Resource/Employments/Employment/Relations/Relation[@ElementType="%s"]/Value[.="%s"]/parent::Relation/parent::Relations/parent::Employment/parent::Employments/parent::Resource',$type,$value);
@@ -309,7 +331,6 @@ class employee_info_stamdata3
      * @param SimpleXMLElement $object
      * @param $type string XML tag name
      * @return bool
-     * @throws Exception
      */
     function check_xml_tag($object, $type)
 	{
