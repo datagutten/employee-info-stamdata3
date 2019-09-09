@@ -197,7 +197,13 @@ class employee_info_stamdata3
 	function manager($ResourceId)
 	{
 		$organizational_unit=$this->organizational_unit($ResourceId);
-		$manager=$this->organisation_info($organizational_unit)->{'Managers'}[0]->string;
+		$org = $this->organisation_info($organizational_unit);
+		$manager=$org->{'Managers'}[0]->string;
+		if($manager==$ResourceId)
+        {
+            $parent_org = $this->organisation_info($org->{'ParentId'});
+            $manager=$parent_org->{'Managers'}[0]->string;
+        }
 		return $this->find_employee($manager);
 	}
 
