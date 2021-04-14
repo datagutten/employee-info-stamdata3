@@ -1,0 +1,48 @@
+language: php
+
+jobs:
+  include:
+    - os: windows
+      language: shell
+      before_install:
+        - choco install php --version 8.0
+        - choco install composer
+        - export PATH="/c/tools/php80:/c/tools:/c/ProgramData/ComposerSetup/bin/:$PATH"
+      install:
+        - composer install --no-interaction --ignore-platform-reqs;
+      cache:
+        directories:
+          - $LOCALAPPDATA/Composer/files
+          - $TRAVIS_BUILD_DIR/tests/test_data
+    - os: linux
+    - php: '7.3'
+    - php: '7.4'
+    - php: '8.0'
+    - php: 'nightly'
+    - php: '7.4'
+      name: 'Prefer lowest'
+      install:
+        - composer update --no-interaction --prefer-lowest
+
+  allow_failures:
+    - php: 'nightly'
+
+env:
+  global:
+    - XDEBUG_MODE=coverage
+
+cache:
+  directories:
+    - $HOME/.cache/composer/files
+
+install:
+  - composer install --no-interaction
+
+before_script:
+  - vendor/bin/phpunit --version
+
+script:
+  - vendor/bin/phpunit
+
+after_script:
+  - bash <(curl -s https://codecov.io/bash)
