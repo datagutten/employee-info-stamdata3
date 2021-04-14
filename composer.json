@@ -1,5 +1,5 @@
 {
-    "name": "askommune/employee-info-stamdata3",
+    "name": "storfollo/employee-info-stamdata3",
     "description": "A PHP class to work with information about employees from a file exported from agresso business world in the format \"stamdata3\"",
     "type": "library",
     "require": {
@@ -15,8 +15,8 @@
     "autoload": {
         "classmap": ["employee_info_stamdata3.class.php"],
         "psr-4": {
-            "askommune\\EmployeeInfo\\": "src",
-            "askommune\\EmployeeInfo\\exceptions\\": "exceptions"
+            "storfollo\\EmployeeInfo\\": "src",
+            "storfollo\\EmployeeInfo\\exceptions\\": "exceptions"
         }
     }
 }

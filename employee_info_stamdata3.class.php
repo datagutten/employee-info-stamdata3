@@ -1,6 +1,6 @@
 <?Php
 //A class to extract information about employees from a file exported from agresso business world in the format "stamdata3"
-use askommune\EmployeeInfo\exceptions;
+use storfollo\EmployeeInfo\exceptions;
 
 class employee_info_stamdata3
 {

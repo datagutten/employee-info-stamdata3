@@ -6,7 +6,7 @@
  * Time: 12:27
  */
 
-namespace askommune\EmployeeInfo\exceptions;
+namespace storfollo\EmployeeInfo\exceptions;
 
 use Exception;
 

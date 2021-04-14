@@ -6,7 +6,7 @@
  * Time: 18.09
  */
 
-namespace askommune\EmployeeInfo\exceptions;
+namespace storfollo\EmployeeInfo\exceptions;
 use Exception;
 
 class NoHitsException extends Exception
