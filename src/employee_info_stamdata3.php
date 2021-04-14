@@ -28,12 +28,12 @@ class employee_info_stamdata3
 
     /**
      * Perform a root level xpath query
-     * @param $xpath
+     * @param string $xpath XPath query
      * @return SimpleXMLElement
      * @throws exceptions\NoHitsException
      */
-	function query($xpath)
-	{
+	function query(string $xpath): SimpleXMLElement
+    {
 		$result=$this->xml->xpath($xpath);
 		if(empty($result))
 			throw new exceptions\NoHitsException($xpath);
@@ -46,8 +46,8 @@ class employee_info_stamdata3
      * @return SimpleXMLElement Resource
      * @throws exceptions\EmployeeNotFoundException
      */
-    function find_employee($ResourceId)
-	{
+    function find_employee(string $ResourceId): SimpleXMLElement
+    {
 		$xpath=sprintf('//Resources/Resource/ResourceId[.="%s"]/parent::Resource',$ResourceId);
 		$result=$this->xml->xpath($xpath);
         if(empty($result))
@@ -62,8 +62,8 @@ class employee_info_stamdata3
      * @return SimpleXMLElement
      * @throws exceptions\NoHitsException
      */
-	function find_employee_SSN($SocialSecurityNumber)
-	{
+	function find_employee_SSN(string $SocialSecurityNumber): SimpleXMLElement
+    {
 		$xpath=sprintf('//Resources/Resource/SocialSecurityNumber[.="%s"]/parent::Resource',$SocialSecurityNumber);
 		$result=$this->xml->xpath($xpath);
 		if(empty($result))
@@ -80,8 +80,8 @@ class employee_info_stamdata3
      * @return SimpleXMLElement
      * @throws exceptions\NoHitsException
      */
-	function find_employee_name($FirstName,$Surname)
-	{
+    function find_employee_name(string $FirstName, string $Surname): SimpleXMLElement
+    {
 		$xpath=sprintf('//Resources/Resource/Name[.="%s, %s"]/parent::Resource',$Surname,$FirstName);
 		$result=$this->xml->xpath($xpath);
 		if(empty($result))
@@ -96,8 +96,8 @@ class employee_info_stamdata3
      * @param SimpleXMLElement $Resource Resource
      * @return string ResourceId
      */
-	function ResourceId($Resource)
-	{
+	function ResourceId(SimpleXMLElement $Resource): string
+    {
 	    $this->check_xml_tag($Resource, 'Resource');
 		return (string)$Resource->{'ResourceId'};
 	}
@@ -108,8 +108,8 @@ class employee_info_stamdata3
      * @param string $relation_name
      * @return string Relation value string
      */
-	function relation_value($Relation,$relation_name)
-	{
+	function relation_value(SimpleXMLElement $Relation, string $relation_name): string
+    {
 		$this->check_xml_tag($Relation,'Relations');
 		$xpath=sprintf('.//Relation[@Name="%s"]/Value',$relation_name);
 		return (string)$Relation->xpath($xpath)[0];
@@ -122,8 +122,8 @@ class employee_info_stamdata3
      * @throws exceptions\DataException
      * @throws exceptions\EmployeeNotFoundException
      */
-	function Main_Position($ResourceId)
-	{
+	function Main_Position($ResourceId): SimpleXMLElement
+    {
 		if(is_object($ResourceId))
 			$ResourceId=$this->ResourceId($ResourceId);
 		$xpath='.//Employment/MainPosition[.="true"]/parent::Employment';///Relations
@@ -156,8 +156,8 @@ class employee_info_stamdata3
      * @throws exceptions\DataException
      * @throws exceptions\EmployeeNotFoundException
      */
-	function organizational_unit($ResourceId)
-	{
+	function organizational_unit(string $ResourceId): SimpleXMLElement
+    {
 		if(!is_string($ResourceId))
 			throw new InvalidArgumentException('Argument must be string, provided type is '.gettype($ResourceId));
 		$MainPosition=$this->Main_Position($ResourceId);
@@ -173,8 +173,8 @@ class employee_info_stamdata3
      * @return SimpleXMLElement
      * @throws exceptions\NoHitsException
      */
-	function organisation_info($Organisation)
-	{
+	function organisation_info($Organisation): SimpleXMLElement
+    {
 		if(empty($Organisation))
 			throw new InvalidArgumentException('organisation_info was called with empty argument');
 		if(is_object($Organisation) && $Organisation->getName()=='Relation')
@@ -198,8 +198,8 @@ class employee_info_stamdata3
      * @throws exceptions\EmployeeNotFoundException
      * @throws exceptions\NoHitsException
      */
-	function manager($ResourceId)
-	{
+	function manager(string $ResourceId): SimpleXMLElement
+    {
 		$organizational_unit=$this->organizational_unit($ResourceId);
 		$org = $this->organisation_info($organizational_unit);
 		$manager=$org->{'Managers'}[0]->string;
@@ -217,8 +217,8 @@ class employee_info_stamdata3
      * @param string $type
      * @return SimpleXMLElement[]
      */
-	function get_employees($value,$type='ORGANIZATIONAL_UNIT')
-	{
+	function get_employees(string $value, $type='ORGANIZATIONAL_UNIT'): array
+    {
 		$xpath=sprintf('//Resources/Resource/Employments/Employment/Relations/Relation[@ElementType="%s"]/Value[.="%s"]/parent::Relation/parent::Relations/parent::Employment/parent::Employments/parent::Resource',$type,$value);
 		return $this->xml->xpath($xpath);
 	}
@@ -232,8 +232,8 @@ class employee_info_stamdata3
      * @throws exceptions\EmployeeNotFoundException
      * @throws exceptions\NoHitsException
      */
-    function organisation_tree($Resource, $debug=false)
-	{
+    function organisation_tree($Resource, $debug=false): array
+    {
 		if(is_string($Resource) && strlen($Resource)==5) {
 
             $Relation = $this->organizational_unit($Resource);
@@ -266,8 +266,8 @@ class employee_info_stamdata3
      * @throws exceptions\EmployeeNotFoundException
      * @throws exceptions\NoHitsException
      */
-    function organisation_path($EmployeeId)
-	{
+    function organisation_path($EmployeeId): string
+    {
 		$organisation_tree=$this->organisation_tree($EmployeeId);
 		$orgstring='';
 		foreach(array_reverse($organisation_tree) as $organisation)
@@ -287,8 +287,8 @@ class employee_info_stamdata3
      * @throws exceptions\EmployeeNotFoundException
      * @throws Exception
      */
-    function show_relations($Resource_or_Relations)
-	{
+    function show_relations($Resource_or_Relations): string
+    {
 		//ResourceId string
 		if(is_string($Resource_or_Relations) && strlen($Resource_or_Relations)==5)
 			$relations=$this->Main_Position($Resource_or_Relations);
@@ -346,8 +346,8 @@ class employee_info_stamdata3
      * @param $type string XML tag name
      * @return bool
      */
-    function check_xml_tag($object, $type)
-	{
+    function check_xml_tag(SimpleXMLElement $object, string $type): bool
+    {
 		if(is_object($object))
 		{
 			if($object->getName()==$type)
