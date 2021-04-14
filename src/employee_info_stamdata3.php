@@ -234,10 +234,15 @@ class employee_info_stamdata3
      */
     function organisation_tree($Resource, $debug=false): array
     {
-		if(is_string($Resource) && strlen($Resource)==5) {
-
-            $Relation = $this->organizational_unit($Resource);
-            $Organisation = $this->organisation_info($Relation->{'Value'});
+		if(is_string($Resource))
+        {
+            if(strlen($Resource)==5)
+            {
+                $Relation = $this->organizational_unit($Resource);
+                $Organisation = $this->organisation_info($Relation->{'Value'});
+            }
+            else
+                throw new InvalidArgumentException('Resource ID must be 5 characters');
         }
         elseif($this->check_xml_tag($Resource, 'Organisation')===true)
             $Organisation=$Resource;
@@ -260,15 +265,16 @@ class employee_info_stamdata3
 	}
 
     /**
-     * @param $EmployeeId
-     * @return string
+     * Get the resources organisation tree separated with backslashes
+     * @param string|SimpleXMLElement $Resource Resource ID, Resource XML or Organisation XML
+     * @return string Organisation path
      * @throws exceptions\DataException
      * @throws exceptions\EmployeeNotFoundException
      * @throws exceptions\NoHitsException
      */
-    function organisation_path($EmployeeId): string
+    function organisation_path($Resource): string
     {
-		$organisation_tree=$this->organisation_tree($EmployeeId);
+		$organisation_tree=$this->organisation_tree($Resource);
 		$orgstring='';
 		foreach(array_reverse($organisation_tree) as $organisation)
 		{
