@@ -4,26 +4,27 @@ namespace storfollo\EmployeeInfo;
 
 use Exception;
 use InvalidArgumentException;
+use RuntimeException;
 use SimpleXMLElement;
 
 class employee_info_stamdata3
 {
-	public $xml=false;
-	public $error;
-	public $debug=false;
+	public $xml;
 
     /**
      * employee_info_stamdata3 constructor.
-     * @param null $file
-     * @throws Exception
+     * @param string $file Stamdata3 file
      */
 	function __construct($file=null)
 	{
 	    if(empty($file))
 	        $file = __DIR__.'/Stamdata3.xml';
-		$this->xml=simplexml_load_file($file);
+		$this->xml=@simplexml_load_file($file);
 		if($this->xml===false)
-			throw new Exception('Unable to load file');
+        {
+            $error = error_get_last();
+            throw new RuntimeException('Unable to load file: '.$error['message']);
+        }
 	}
 
     /**
