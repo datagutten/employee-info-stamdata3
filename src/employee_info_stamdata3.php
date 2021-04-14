@@ -1,6 +1,10 @@
 <?Php
 //A class to extract information about employees from a file exported from agresso business world in the format "stamdata3"
-use storfollo\EmployeeInfo\exceptions;
+namespace storfollo\EmployeeInfo;
+
+use Exception;
+use InvalidArgumentException;
+use SimpleXMLElement;
 
 class employee_info_stamdata3
 {

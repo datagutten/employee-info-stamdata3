@@ -13,7 +13,6 @@
         }
     ],
     "autoload": {
-        "classmap": ["employee_info_stamdata3.class.php"],
         "psr-4": {
             "storfollo\\EmployeeInfo\\": "src",
             "storfollo\\EmployeeInfo\\exceptions\\": "exceptions"
