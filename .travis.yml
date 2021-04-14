@@ -5,6 +5,7 @@ jobs:
     - os: windows
       language: shell
       before_install:
+        - choco config set cacheLocation $HOME/choco_cache
         - choco install php --version 8.0
         - choco install composer
         - export PATH="/c/tools/php80:/c/tools:/c/ProgramData/ComposerSetup/bin/:$PATH"
@@ -13,9 +14,9 @@ jobs:
       cache:
         directories:
           - $LOCALAPPDATA/Composer/files
-          - $TRAVIS_BUILD_DIR/tests/test_data
+          - $HOME/choco_cache
     - os: linux
-    - php: '7.3'
+      php: '7.3'
     - php: '7.4'
     - php: '8.0'
     - php: 'nightly'
