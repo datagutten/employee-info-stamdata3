@@ -17,5 +17,8 @@
             "storfollo\\EmployeeInfo\\": "src",
             "storfollo\\EmployeeInfo\\exceptions\\": "exceptions"
         }
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^8.3|^9"
     }
 }
