@@ -6,8 +6,8 @@ jobs:
       language: shell
       before_install:
         - choco config set cacheLocation $HOME/choco_cache
-        - choco install php --version 8.0
-        - choco install composer
+        - choco install php --version 8.0 --no-progress
+        - choco install composer --no-progress
         - export PATH="/c/tools/php80:/c/tools:/c/ProgramData/ComposerSetup/bin/:$PATH"
       install:
         - composer install --no-interaction --ignore-platform-reqs;
